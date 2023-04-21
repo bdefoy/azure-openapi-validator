@@ -15,7 +15,7 @@ import provisioningStateSpecifiedForLRODelete from "./functions/lro-delete-provi
 import validateOriginalUri from "./functions/lro-original-uri"
 import { lroPatch202 } from "./functions/lro-patch-202"
 import provisioningStateSpecifiedForLROPatch from "./functions/lro-patch-provisioning-state-specified"
-import { LROPostFinalStateViaProperty } from "./functions/lro-post-final-state-via-property" 
+import { LROPostFinalStateViaProperty } from "./functions/lro-post-final-state-via-property"
 import { lroPostReturn } from "./functions/lro-post-return"
 import provisioningStateSpecifiedForLROPut from "./functions/lro-put-provisioning-state-specified"
 import noDuplicatePathsForScopeParameter from "./functions/no-duplicate-paths-for-scope-parameter"
@@ -221,6 +221,36 @@ const ruleset: any = {
         function: falsy,
       },
     },
+
+    ///
+    /// ARM Policy patters Avoid free-form objects Properties with type - object
+    ///
+
+    // RPC Code: RPC-Policy-V1-03
+    PropertiesTypeNotAsObject: {
+      description: "The Type of the Properties should not be defined as Object.",
+      severity: "error",
+      message: "{{description}}",
+      resolved: true,
+      formats: [oas2],
+      given: "$[paths,'x-ms-paths'].*.get.parameters[$..[?(@property == 'any' && @.type == 'object']]",
+      then: {
+        function: truthy,
+      },
+    },
+
+    // RPC Code: RPC-Policy-V1-03
+      AvoidAdditionalProperties: {
+        description: "The Additional Properties is not allowed except for tags.",
+        severity: "error",
+        message: "{{description}}",
+        resolved: true,
+        formats: [oas2],
+          given: "$[paths,'x-ms-paths'].*.get.parameters$..[?(@property == 'additionalProperties')]",
+        then: {
+            function: truthy,
+        },
+      },
 
     ///
     /// ARM RPC rules for Get patterns
