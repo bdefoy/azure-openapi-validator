@@ -40,6 +40,7 @@ import { SyncPostReturn } from "./functions/synchronous-post-return"
 import trackedResourceTagsPropertyInRequest from "./functions/trackedresource-tags-property-in-request"
 import { validatePatchBodyParamProperties } from "./functions/validate-patch-body-param-properties"
 import withXmsResource from "./functions/with-xms-resource"
+import { propertiesTypeNotAsObject } from "./functions/properties-type-not-as-object"
 const ruleset: any = {
   extends: [common],
   rules: {
@@ -228,29 +229,29 @@ const ruleset: any = {
 
     // RPC Code: RPC-Policy-V1-03
     PropertiesTypeNotAsObject: {
-      description: "The Type of the Properties should not be defined as Object.",
+      description: "If a property is defined with `'type': 'object'`, it must also define an object body.",
       severity: "error",
       message: "{{description}}",
       resolved: true,
       formats: [oas2],
-      given: "$[paths,'x-ms-paths'].*.get.parameters[$..[?(@property == 'any' && @.type == 'object']]",
+      given: "$.definitions.*",
       then: {
-        function: truthy,
+        function: propertiesTypeNotAsObject,
       },
     },
 
     // RPC Code: RPC-Policy-V1-03
-      AvoidAdditionalProperties: {
-        description: "The Additional Properties is not allowed except for tags.",
-        severity: "error",
-        message: "{{description}}",
-        resolved: true,
-        formats: [oas2],
-          given: "$[paths,'x-ms-paths'].*.get.parameters$..[?(@property == 'additionalProperties')]",
-        then: {
-            function: truthy,
-        },
+    AvoidAdditionalProperties: {
+      description: "The Additional Properties is not allowed except for tags.",
+      severity: "error",
+      message: "{{description}}",
+      resolved: true,
+      formats: [oas2],
+      given: "$[paths,'x-ms-paths'].*.get.parameters$..[?(@property == 'additionalProperties')]",
+      then: {
+        function: truthy,
       },
+    },
 
     ///
     /// ARM RPC rules for Get patterns
